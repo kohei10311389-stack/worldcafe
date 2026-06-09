@@ -1,0 +1,16 @@
+:root { font-family: system-ui, -apple-system, "Segoe UI", sans-serif; color: #111; }
+* { box-sizing: border-box; }
+body { margin: 0; background: #f5f5f5; }
+.app { max-width: 640px; margin: 0 auto; padding: 16px; }
+.btn { display: block; width: 100%; padding: 16px; margin: 8px 0; font-size: 18px;
+  border: none; border-radius: 12px; background: #2563eb; color: #fff; text-align: center;
+  text-decoration: none; cursor: pointer; }
+.btn.secondary { background: #e5e7eb; color: #111; }
+.btn.danger { background: #dc2626; }
+.h1 { font-size: 22px; margin: 8px 0 16px; }
+.card { background: #fff; border-radius: 12px; padding: 12px; margin: 8px 0; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+.thumb { width: 100%; border-radius: 8px; display: block; }
+.memo { width: 100%; min-height: 56px; font-size: 16px; padding: 8px; border: 1px solid #ccc; border-radius: 8px; }
+.grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+.tablehead { font-size: 18px; font-weight: 700; margin: 16px 0 4px; }
+.muted { color: #666; font-size: 13px; }
