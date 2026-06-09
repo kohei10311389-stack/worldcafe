@@ -1,7 +1,5 @@
-// Phase1: ["A"] のまま通しを確認。Phase2(本番)で下行を A〜R に差し替える。
-export const TABLES: string[] = ["A"];
-// Phase2 で使う全18テーブル（差し替え用）:
-// export const TABLES: string[] = "ABCDEFGHIJKLMNOPQR".split("");
+// 本番構成: A〜R の18テーブル。
+export const TABLES: string[] = "ABCDEFGHIJKLMNOPQR".split("");
 
 export function buildCameraUrl(baseUrl: string, table: string): string {
   const base = baseUrl.endsWith("/") ? baseUrl : baseUrl + "/";
