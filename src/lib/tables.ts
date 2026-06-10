@@ -1,11 +1,6 @@
 // 本番構成: A〜S の18テーブル（Cは使わない）。
 export const TABLES: string[] = "ABDEFGHIJKLMNOPQRS".split("");
 
-export function buildCameraUrl(baseUrl: string, table: string): string {
-  const base = baseUrl.endsWith("/") ? baseUrl : baseUrl + "/";
-  return `${base}#/camera?table=${table}`;
-}
-
 export function imageFileName(table: string, no: number): string {
   return `${table}-${String(no).padStart(3, "0")}.jpg`;
 }

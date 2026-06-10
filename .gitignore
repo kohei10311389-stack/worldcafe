@@ -29,3 +29,5 @@ pnpm-debug.log*
 
 # PWA generated
 dev-dist/
+
+_ocr_work/
