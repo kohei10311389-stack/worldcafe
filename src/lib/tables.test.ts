@@ -2,10 +2,11 @@ import { describe, it, expect } from "vitest";
 import { TABLES, buildCameraUrl, assignPhotoNumbers, imageFileName } from "./tables";
 
 describe("tables", () => {
-  it("A〜Rの18テーブルを持つ", () => {
+  it("A〜S（C抜き）の18テーブルを持つ", () => {
     expect(TABLES).toHaveLength(18);
     expect(TABLES[0]).toBe("A");
-    expect(TABLES[17]).toBe("R");
+    expect(TABLES[17]).toBe("S");
+    expect(TABLES).not.toContain("C");
   });
 
   it("buildCameraUrl はベースURL末尾に #/camera?table=X を付ける", () => {

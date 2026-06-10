@@ -1,5 +1,5 @@
-// 本番構成: A〜R の18テーブル。
-export const TABLES: string[] = "ABCDEFGHIJKLMNOPQR".split("");
+// 本番構成: A〜S の18テーブル（Cは使わない）。
+export const TABLES: string[] = "ABDEFGHIJKLMNOPQRS".split("");
 
 export function buildCameraUrl(baseUrl: string, table: string): string {
   const base = baseUrl.endsWith("/") ? baseUrl : baseUrl + "/";
