@@ -12,6 +12,7 @@ export default function Camera() {
   const [memo, setMemo] = useState("");
   const [savedCount, setSavedCount] = useState(0);
   const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   // table未指定/不正ならテーブル選択を表示
   if (!table || !TABLES.includes(table)) {
@@ -38,14 +39,20 @@ export default function Camera() {
   async function save() {
     if (!file) return;
     setBusy(true);
-    await addPhoto({ table: table!, blob: file, mime: file.type || "image/jpeg", memo });
-    setBusy(false);
-    setSavedCount((n) => n + 1);
-    setFile(null);
-    if (preview) URL.revokeObjectURL(preview);
-    setPreview(null);
-    setMemo("");
-    if (fileRef.current) fileRef.current.value = "";
+    setError(null);
+    try {
+      await addPhoto({ table: table!, blob: file, mime: file.type || "image/jpeg", memo });
+      setSavedCount((n) => n + 1);
+      setFile(null);
+      if (preview) URL.revokeObjectURL(preview);
+      setPreview(null);
+      setMemo("");
+      if (fileRef.current) fileRef.current.value = "";
+    } catch (e) {
+      setError(`保存に失敗しました: ${e instanceof Error ? e.message : String(e)}。プライベートブラウズ中や空き容量不足では保存できないことがあります。`);
+    } finally {
+      setBusy(false);
+    }
   }
 
   return (
@@ -57,6 +64,7 @@ export default function Camera() {
       <button className="btn" onClick={() => fileRef.current?.click()}>
         📷 写真を撮影 / 選択
       </button>
+      {error && <p style={{ color: "#d33" }}>{error}</p>}
       {preview && (
         <div className="card">
           <img className="thumb" src={preview} alt="preview" />

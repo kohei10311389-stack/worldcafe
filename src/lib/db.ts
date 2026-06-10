@@ -9,10 +9,22 @@ export interface Photo {
   memo: string;
 }
 
+// iOS SafariはIndexedDBへのBlob保存が失敗・ハングすることがあるため、
+// 実体はArrayBufferで保存する。旧バージョンが保存したBlobも読める。
+interface StoredPhoto {
+  id: string;
+  table: string;
+  data?: ArrayBuffer;
+  blob?: Blob;
+  mime: string;
+  createdAt: number;
+  memo: string;
+}
+
 interface WCDB extends DBSchema {
   photos: {
     key: string;
-    value: Photo;
+    value: StoredPhoto;
     indexes: { by_table: string; by_createdAt: number };
   };
 }
@@ -31,31 +43,39 @@ function db() {
   return dbPromise;
 }
 
+function toPhoto(s: StoredPhoto): Photo {
+  const blob = s.blob instanceof Blob ? s.blob : new Blob([s.data!], { type: s.mime });
+  return { id: s.id, table: s.table, blob, mime: s.mime, createdAt: s.createdAt, memo: s.memo };
+}
+
 export async function addPhoto(input: {
   table: string; blob: Blob; mime: string; memo?: string;
 }): Promise<Photo> {
-  const photo: Photo = {
+  const data = await input.blob.arrayBuffer();
+  const stored: StoredPhoto = {
     id: crypto.randomUUID(),
     table: input.table,
-    blob: input.blob,
+    data,
     mime: input.mime,
     createdAt: Date.now(),
     memo: input.memo ?? ""
   };
-  await (await db()).put("photos", photo);
-  return photo;
+  await (await db()).put("photos", stored);
+  return toPhoto(stored);
 }
 
 export async function getPhotosByTable(table: string): Promise<Photo[]> {
   const all = await (await db()).getAllFromIndex("photos", "by_table", table);
-  return all.sort((a, b) => a.createdAt - b.createdAt);
+  return all.sort((a, b) => a.createdAt - b.createdAt).map(toPhoto);
 }
 
 export async function getAllPhotos(): Promise<Photo[]> {
   const all = await (await db()).getAll("photos");
-  return all.sort((a, b) =>
-    a.table === b.table ? a.createdAt - b.createdAt : a.table < b.table ? -1 : 1
-  );
+  return all
+    .sort((a, b) =>
+      a.table === b.table ? a.createdAt - b.createdAt : a.table < b.table ? -1 : 1
+    )
+    .map(toPhoto);
 }
 
 export async function updateMemo(id: string, memo: string): Promise<void> {
