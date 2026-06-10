@@ -20,9 +20,16 @@ export function buildZipEntries(photos: Photo[]): ZipEntry[] {
   return entries;
 }
 
-export async function exportZip(photos: Photo[]): Promise<void> {
+export async function generateZipBlob(photos: Photo[]): Promise<Blob> {
   const zip = new JSZip();
   for (const e of buildZipEntries(photos)) zip.file(e.path, e.blob);
-  const out = await zip.generateAsync({ type: "blob" });
-  saveBlob(out, `worldcafe-images-${fileStamp()}.zip`);
+  return zip.generateAsync({ type: "blob" });
+}
+
+export function zipFileName(): string {
+  return `worldcafe-images-${fileStamp()}.zip`;
+}
+
+export async function exportZip(photos: Photo[]): Promise<void> {
+  saveBlob(await generateZipBlob(photos), zipFileName());
 }

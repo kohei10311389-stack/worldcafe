@@ -1,16 +1,49 @@
 import { useEffect, useState } from "react";
 import { getAllPhotos, type Photo } from "../lib/db";
 import { exportExcel } from "../lib/excel";
-import { exportZip } from "../lib/zip";
+import { generateZipBlob, zipFileName } from "../lib/zip";
+import { saveBlob } from "../lib/download";
 
 export default function Export() {
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [busy, setBusy] = useState(false);
+  const [zipBlob, setZipBlob] = useState<Blob | null>(null);
+  const [error, setError] = useState<string | null>(null);
   useEffect(() => { getAllPhotos().then(setPhotos); }, []);
 
   const counts = photos.reduce<Record<string, number>>((m, p) => {
     m[p.table] = (m[p.table] ?? 0) + 1; return m;
   }, {});
+
+  // iOS Safariはユーザータップ直後でないとダウンロードを発火できないため、
+  // 「生成」と「保存/共有」を別タップに分ける。
+  async function makeZip() {
+    setBusy(true);
+    setError(null);
+    setZipBlob(null);
+    try {
+      setZipBlob(await generateZipBlob(photos));
+    } catch (e) {
+      setError(`ZIP生成に失敗しました: ${e instanceof Error ? e.message : String(e)}`);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function shareOrDownloadZip() {
+    if (!zipBlob) return;
+    const name = zipFileName();
+    const file = new File([zipBlob], name, { type: "application/zip" });
+    if (navigator.canShare?.({ files: [file] })) {
+      try {
+        await navigator.share({ files: [file] });
+        return;
+      } catch (e) {
+        if (e instanceof Error && e.name === "AbortError") return; // ユーザーが共有をキャンセル
+      }
+    }
+    saveBlob(zipBlob, name);
+  }
 
   return (
     <div>
@@ -23,10 +56,16 @@ export default function Export() {
       </div>
       <button className="btn" disabled={!photos.length}
         onClick={() => exportExcel(photos)}>Excel（メタデータ）を出力</button>
-      <button className="btn" disabled={!photos.length || busy}
-        onClick={async () => { setBusy(true); await exportZip(photos); setBusy(false); }}>
-        {busy ? "ZIP生成中…" : "画像ZIPを出力"}
-      </button>
+      {error && <p style={{ color: "#d33" }}>{error}</p>}
+      {!zipBlob ? (
+        <button className="btn" disabled={!photos.length || busy} onClick={makeZip}>
+          {busy ? "ZIP生成中…" : "① 画像ZIPを生成"}
+        </button>
+      ) : (
+        <button className="btn" onClick={shareOrDownloadZip}>
+          ② ZIPを保存 / 共有（{(zipBlob.size / 1024 / 1024).toFixed(1)} MB）
+        </button>
+      )}
       <p className="muted">※2人で分担した場合は、各自で出力した Excel と ZIP をPC上でまとめてください。</p>
     </div>
   );
