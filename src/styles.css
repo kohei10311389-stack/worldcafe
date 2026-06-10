@@ -14,3 +14,14 @@ body { margin: 0; background: #f5f5f5; }
 .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
 .tablehead { font-size: 18px; font-weight: 700; margin: 16px 0 4px; }
 .muted { color: #666; font-size: 13px; }
+
+/* テーブル選択: A/B グループの色分け（青＝A / オレンジ＝B） */
+.tablehead.group-a { border-left: 6px solid #2563eb; padding-left: 8px; }
+.tablehead.group-b { border-left: 6px solid #b45309; padding-left: 8px; }
+.btn.group-a { background: #2563eb; }
+.btn.group-b { background: #b45309; }
+.group-hint { font-size: 12px; font-weight: 400; color: #666; }
+.tbadge { display: inline-block; min-width: 22px; padding: 1px 6px; margin-right: 6px;
+  border-radius: 999px; background: #fff; font-weight: 700; font-size: 14px; }
+.btn.group-a .tbadge { color: #2563eb; }
+.btn.group-b .tbadge { color: #b45309; }

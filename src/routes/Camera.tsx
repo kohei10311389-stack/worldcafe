@@ -3,6 +3,7 @@ import { useSearchParams, Link } from "react-router-dom";
 import { TABLES } from "../lib/tables";
 import { themesForTable } from "../lib/themes";
 import { addPhoto } from "../lib/db";
+import TablePicker from "../components/TablePicker";
 
 export default function Camera() {
   const [params] = useSearchParams();
@@ -21,11 +22,7 @@ export default function Camera() {
     return (
       <div>
         <h1 className="h1">テーブルを選択</h1>
-        <div className="grid">
-          {TABLES.map((t) => (
-            <Link className="btn" key={t} to={`/camera?table=${t}`}>テーブル {t}</Link>
-          ))}
-        </div>
+        <TablePicker tables={TABLES} hrefFor={(t) => `/camera?table=${t}`} />
       </div>
     );
   }

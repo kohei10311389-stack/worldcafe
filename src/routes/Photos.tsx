@@ -3,6 +3,7 @@ import { useSearchParams, Link } from "react-router-dom";
 import { getAllPhotos, type Photo } from "../lib/db";
 import { TABLES } from "../lib/tables";
 import PhotoCard from "../components/PhotoCard";
+import TablePicker from "../components/TablePicker";
 
 export default function Photos() {
   const [photos, setPhotos] = useState<Photo[]>([]);
@@ -20,16 +21,11 @@ export default function Photos() {
       <div>
         <h1 className="h1">写真一覧（合計{photos.length}枚）</h1>
         {tablesWithPhotos.length === 0 && <p className="muted">まだ写真がありません。</p>}
-        <div className="grid">
-          {tablesWithPhotos.map((t) => {
-            const count = photos.filter((p) => p.table === t).length;
-            return (
-              <Link className="btn" key={t} to={`/photos?table=${t}`}>
-                テーブル {t}（{count}枚）
-              </Link>
-            );
-          })}
-        </div>
+        <TablePicker
+          tables={tablesWithPhotos}
+          hrefFor={(t) => `/photos?table=${t}`}
+          countFor={(t) => photos.filter((p) => p.table === t).length}
+        />
       </div>
     );
   }
