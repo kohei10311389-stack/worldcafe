@@ -1,6 +1,7 @@
 import { useState, useRef } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import { TABLES } from "../lib/tables";
+import { themesForTable } from "../lib/themes";
 import { addPhoto } from "../lib/db";
 
 export default function Camera() {
@@ -10,6 +11,7 @@ export default function Camera() {
   const [preview, setPreview] = useState<string | null>(null);
   const [file, setFile] = useState<File | null>(null);
   const [memo, setMemo] = useState("");
+  const [theme, setTheme] = useState<string | null>(null);
   const [savedCount, setSavedCount] = useState(0);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -22,6 +24,27 @@ export default function Camera() {
         <div className="grid">
           {TABLES.map((t) => (
             <Link className="btn" key={t} to={`/camera?table=${t}`}>テーブル {t}</Link>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  const themes = themesForTable(table);
+
+  // テーマ未選択ならテーマ選択を表示
+  if (themes.length > 0 && !theme) {
+    return (
+      <div>
+        <h1 className="h1">テーブル {table} — テーマを選択</h1>
+        <p className="muted">これから撮影する付箋のトークテーマを選んでください。</p>
+        <div className="grid">
+          {themes.map((t) => (
+            <button className="btn" key={t.title} onClick={() => setTheme(t.title)}
+              style={{ display: "block", width: "100%", textAlign: "left" }}>
+              <div>{t.title}</div>
+              <div style={{ fontSize: 12, opacity: 0.75 }}>{t.subtitle}</div>
+            </button>
           ))}
         </div>
       </div>
@@ -41,7 +64,10 @@ export default function Camera() {
     setBusy(true);
     setError(null);
     try {
-      await addPhoto({ table: table!, blob: file, mime: file.type || "image/jpeg", memo });
+      await addPhoto({
+        table: table!, blob: file, mime: file.type || "image/jpeg",
+        memo, theme: theme ?? ""
+      });
       setSavedCount((n) => n + 1);
       setFile(null);
       if (preview) URL.revokeObjectURL(preview);
@@ -58,6 +84,13 @@ export default function Camera() {
   return (
     <div>
       <h1 className="h1">テーブル {table} 撮影</h1>
+      {theme && (
+        <p className="muted">
+          テーマ: <strong>{theme}</strong>{" "}
+          <button className="btn secondary" style={{ padding: "2px 10px", fontSize: 12 }}
+            onClick={() => setTheme(null)}>変更</button>
+        </p>
+      )}
       {savedCount > 0 && <p className="muted">このセッションで保存: {savedCount}枚</p>}
       <input ref={fileRef} type="file" accept="image/*" capture="environment"
         onChange={onPick} style={{ display: "none" }} />

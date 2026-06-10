@@ -4,7 +4,7 @@ import { assignPhotoNumbers, imageFileName } from "./tables";
 import { formatDateTime, fileStamp } from "./datetime";
 import { saveBlob } from "./download";
 
-const HEADER = ["テーブル名", "写真No", "画像名", "撮影日時", "メモ"];
+const HEADER = ["テーブル名", "写真No", "画像名", "撮影日時", "テーマ", "メモ"];
 
 export function buildExcelRows(photos: Photo[]): (string | number)[][] {
   const byTable = new Map<string, Photo[]>();
@@ -16,7 +16,7 @@ export function buildExcelRows(photos: Photo[]): (string | number)[][] {
     for (const p of assignPhotoNumbers(byTable.get(table)!)) {
       rows.push([
         p.table, p.no, imageFileName(p.table, p.no),
-        formatDateTime(p.createdAt), p.memo
+        formatDateTime(p.createdAt), p.theme, p.memo
       ]);
     }
   }

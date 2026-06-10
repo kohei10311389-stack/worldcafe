@@ -17,7 +17,10 @@ export default function PhotoCard({ photo, no, onChanged }: {
 
   return (
     <div className="card">
-      <div className="muted">No.{no} ・ {formatDateTime(photo.createdAt)}</div>
+      <div className="muted">
+        No.{no} ・ {formatDateTime(photo.createdAt)}
+        {photo.theme && <> ・ {photo.theme}</>}
+      </div>
       {url && <img className="thumb" src={url} alt={`${photo.table}-${no}`} />}
       <textarea className="memo" value={memo}
         onChange={(e) => setMemo(e.target.value)}

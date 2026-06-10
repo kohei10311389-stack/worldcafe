@@ -7,6 +7,7 @@ export interface Photo {
   mime: string;
   createdAt: number;
   memo: string;
+  theme: string;
 }
 
 // iOS SafariはIndexedDBへのBlob保存が失敗・ハングすることがあるため、
@@ -19,6 +20,7 @@ interface StoredPhoto {
   mime: string;
   createdAt: number;
   memo: string;
+  theme?: string;
 }
 
 interface WCDB extends DBSchema {
@@ -45,11 +47,14 @@ function db() {
 
 function toPhoto(s: StoredPhoto): Photo {
   const blob = s.blob instanceof Blob ? s.blob : new Blob([s.data!], { type: s.mime });
-  return { id: s.id, table: s.table, blob, mime: s.mime, createdAt: s.createdAt, memo: s.memo };
+  return {
+    id: s.id, table: s.table, blob, mime: s.mime,
+    createdAt: s.createdAt, memo: s.memo, theme: s.theme ?? ""
+  };
 }
 
 export async function addPhoto(input: {
-  table: string; blob: Blob; mime: string; memo?: string;
+  table: string; blob: Blob; mime: string; memo?: string; theme?: string;
 }): Promise<Photo> {
   const data = await input.blob.arrayBuffer();
   const stored: StoredPhoto = {
@@ -58,7 +63,8 @@ export async function addPhoto(input: {
     data,
     mime: input.mime,
     createdAt: Date.now(),
-    memo: input.memo ?? ""
+    memo: input.memo ?? "",
+    theme: input.theme ?? ""
   };
   await (await db()).put("photos", stored);
   return toPhoto(stored);
